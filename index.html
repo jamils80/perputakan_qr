@@ -1,10 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Smeksapur</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Poppins & Fredoka -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- HTML5 QR Code Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-Editor
-Kode.gs
-Index.html
-.
+  <style>
+    :root { 
+      --primary-color: #0284c7; 
+      --secondary-color: #f59e0b; 
+      --accent-green: #10b981; 
+      --text-dark: #0f172a; 
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-386387388389390391392393394395396397398399400401402403404405406407408409410411412413414415
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      color: var(--text-dark);
+      background-color: #f0fdf4;
+    }
+
+    .library-bg-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; overflow: hidden;
+    }
+
+    .library-bg-image {
+      position: absolute;
+      top: -5%; left: -5%; width: 110%; height: 110%;
+      background-image: url('https://lh3.googleusercontent.com/d/1mkopnyuopztm2jR_8iEjx2VM-QtM9EDq');
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      opacity: 0.35; filter: saturate(1.4) contrast(1.05);
+      animation: kenBurnsBg 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes kenBurnsBg {
+      0% { transform: scale(1) translate(0, 0); }
+      50% { transform: scale(1.06) translate(-10px, -8px); }
+      100% { transform: scale(1.02) translate(8px, 10px); }
+    }
+
+    .bg-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(254, 243, 199, 0.75) 50%, rgba(220, 252, 231, 0.75) 100%);
+    }
+
+    .app-wrapper {
+      position: relative; z-index: 1; padding: 25px 15px; min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+
+    .header-card {
+      background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 24px;
+      padding: 30px 25px; box-shadow: 0 12px 30px rgba(2, 132, 199, 0.12); margin-bottom: 20px;
+    }
+
+    .home-logo {
+      width: 280px; height: auto; object-fit: contain; margin-bottom: 15px;
+      filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.08));
+    }
+
+    .header-title { 
+      font-family: 'Fredoka', cursive; font-size: 2.2rem; color: var(--primary-color); margin: 0; line-height: 1.2;
+    }
+
+    .header-subtitle { 
+      color: #475569; font-size: 0.95rem; margin-top: 8px; font-weight: 500; 
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+      border: 2px solid #ffffff; border-radius: 24px; padding: 25px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); margin-bottom: 20px;
+    }
+
+    .btn-action-start {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff; border: none; font-weight: 600; font-size: 1.05rem;
+      padding: 16px 28px; border-radius: 14px; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+      transition: all 0.3s ease;
+    }
+
+    .btn-action-start:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(2, 132, 199, 0.45); color: #fff; }
+
+    .modal-content { background: #ffffff; border: none; border-radius: 24px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); overflow: hidden; }
+    .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-bottom: 1px solid #7dd3fc; padding: 18px 24px; }
+    .modal-title { font-family: 'Fredoka', cursive; color: #0369a1; }
+    
+    .book-info-box { background: #f0fdf4; border-left: 5px solid var(--accent-green); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+    .form-control, .form-select { background: #f8fafc; border: 1.5px solid #cbd5e1; color: var(--text-dark); border-radius: 12px; padding: 12px 16px; font-weight: 500; }
+    
+    .btn-submit {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s ease;
+    }
+
+    .status-badge { display: inline-block; padding: 5px 14px; border-radius: 50px; font-weight: 700; font-size: 0.8rem; }
+    .badge-pinjam { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .badge-kembali { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+    .app-footer { text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 500; margin-top: 15px; }
+
+    #reader { width: 100%; max-width: 450px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden; min-height: 250px; }
+  </style>
+</head>
+<body>
+
+  <div class="library-bg-container">
+    <div class="library-bg-image"></div>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <div class="container app-wrapper" style="max-width: 650px;">
+    <div>
+      <div class="header-card text-center">
+        <div>
+          <img src="https://lh3.googleusercontent.com/d/1gj5Xy_Gk9UHulau-_vf3IZuYlQtQN6Jz" class="home-logo" alt="Logo Sekolah Beranda">
+        </div>
+        <h1 class="header-title">Perpustakaan Smeksapur</h1>
+        <p class="header-subtitle">Scan QR Code Buku untuk Peminjaman atau Pengembalian</p>
+      </div>
+
+      <div class="glass-card text-center py-4">
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+          <i class="fa-solid fa-qrcode text-warning fs-3"></i>
+          <h5 class="m-0 fw-bold text-dark">Pemindai QR Code</h5>
+        </div>
+        
+        <p class="text-muted small mb-4">Tekan tombol di bawah untuk membuka pemindai kamera atau mencetak laporan.</p>
+
+        <button id="btnStart" class="btn btn-action-start w-100 mb-3" onclick="openScannerModal()">
+          <i class="fa-solid fa-camera me-2"></i> Buka Kamera Scan
+        </button>
+
+        <button class="btn btn-outline-primary w-100 py-2 rounded-3 fw-bold" onclick="openModalLaporan()">
+          <i class="fa-solid fa-print me-2"></i> Cetak Laporan Bulanan
+        </button>
+      </div>
+
+      <div class="glass-card py-3">
+        <div class="row text-center">
+          <div class="col-6 border-end border-2">
+            <div class="d-flex align-items-center justify-content-center gap-2 text-primary mb-1 fw-bold">
+              <i class="fa-solid fa-book-open"></i> Peminjaman
+            </div>
+            <p class="small text-muted mb-0">Scan QR → Pilih Kelas & Nama</p>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center justify-content-center gap-2 text-success mb-1 fw-bold">
+              <i class="fa-solid fa-rotate-left"></i> Pengembalian
+            </div>
+            <p class="small text-muted mb-0">Scan QR → Konfirmasi Selesai</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-footer">
+      <p class="mb-0">&copy; 2026 | Perpustakaan - SMK Negeri 1 Purwoasri</p>
+    </div>
+  </div>
+
+  <!-- MODAL PEMINDAI KAMERA -->
+  <div class="modal fade" id="modalScanner" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-camera me-2"></i> Pemindai QR Code</h5>
+          <button type="button" class="btn-close" onclick="closeScannerModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="reader"></div>
+          <p class="text-muted small mt-3 mb-0">Arahkan kamera ke QR Code buku</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dialog Input Data Transaksi -->
+  <div class="modal fade" id="modalTrans" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-primary fs-4"></i>
+            <h5 class="modal-title mb-0" id="modalTitle">Laporan Transaksi Buku</h5>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="book-info-box" id="bookDetailBox">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <h6 class="fw-bold mb-0 text-dark" id="bookTitle">Judul Buku</h6>
+              <span id="transactionBadge" class="status-badge badge-pinjam">PINJAM</span>
+            </div>
+            <p class="small text-secondary mb-0" id="bookMapel">Mata Pelajaran: -</p>
+            <p class="small text-muted mb-0" id="bookCode">Kode QR: -</p>
+          </div>
+
+          <form id="formTransaksi">
+            <input type="hidden" id="qrCodeInput">
+            <input type="hidden" id="actionInput">
+
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-bold text-dark"><i class="fa-solid fa-users me-1 text-primary"></i> Pilih Kelas</label>
+              <select id="selectKelas" class="form-select" onchange="loadSiswa()" required>
+                <option value="">-- Pilih Kelas Siswa --</option>
+              </select>
+            </div>
+
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-bold text-dark"><i class="fa-solid fa-user me-1 text-primary"></i> Pilih Nama Siswa</label>
+              <select id="selectSiswa" class="form-select" required disabled>
+                <option value="">-- Pilih Nama Siswa --</option>
+              </select>
+            </div>
+
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-bold text-dark"><i class="fa-solid fa-cubes me-1 text-primary"></i> Jumlah Buku</label>
+              <input type="number" id="inputJumlahBuku" class="form-control" min="1" value="1" required placeholder="Masukkan jumlah buku" oninput="cekJumlahBuku()">
+            </div>
+
+            <div class="mb-4 text-start" id="containerKeterangan" style="display: none;">
+              <label class="form-label small fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Alasan Jumlah Buku Berbeda</label>
+              <input type="text" id="inputKeterangan" class="form-control" placeholder="tuliskan alasan jika jumlah buku tidak sama">
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-submit" id="btnSubmit">
+                <i class="fa-solid fa-floppy-disk me-2"></i> Simpan Transaksi
+              </button>
+              <button type="button" class="btn btn-light text-muted border" data-bs-dismiss="modal">Batal</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOTIFIKASI KUSTOM -->
+  <div class="modal fade" id="modalNotif" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-3">
+        <div class="modal-body">
+          <div id="notifIconBox" class="mb-3">
+            <i class="fa-solid fa-circle-check fs-1 text-success" id="notifIcon"></i>
+          </div>
+          <h6 class="fw-bold text-dark mb-2" id="notifTitle">Pemberitahuan</h6>
+          <p class="small text-muted mb-4" id="notifMessage">Pesan tidak ada.</p>
+          <button type="button" class="btn btn-primary w-100 rounded-3 fw-semibold" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FILTER CETAK LAPORAN BULANAN -->
+  <div class="modal fade" id="modalLaporan" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-file-invoice me-2"></i> Cetak Laporan Bulanan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-4">
+            <div class="col-6 text-start">
+              <label class="form-label small fw-bold">Pilih Bulan</label>
+              <select id="filterBulan" class="form-select">
+                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              </select>
+            </div>
+            <div class="col-6 text-start">
+              <label class="form-label small fw-bold">Pilih Tahun</label>
+              <select id="filterTahun" class="form-select"></select>
+            </div>
+          </div>
+          <button onclick="prosesCetakLaporan()" class="btn btn-success w-100 rounded-3 fw-bold py-2">
+            <i class="fa-solid fa-print me-2"></i> Tampilkan & Cetak PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Bootstrap 5 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // PASTE URL APPS SCRIPT BERAKHIRAN /exec ANDA DI SINI
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAcPLcPuMAjXfifpNO-QughpNkmZTmon6Z32Q4KEQyf0_rf4U08acs1Mtwk9e3WRoE/exec";
+
+    let modalElement = null;
+    let modalNotifElement = null;
+    let modalLaporanElement = null;
+    let modalScannerElement = null;
+    let html5QrCode = null;
+    let currentScannedQr = '';
+    let jumlahBukuPinjamAwal = 1;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      modalElement = new bootstrap.Modal(document.getElementById('modalTrans'));
+      modalNotifElement = new bootstrap.Modal(document.getElementById('modalNotif'));
+      modalLaporanElement = new bootstrap.Modal(document.getElementById('modalLaporan'));
+      modalScannerElement = new bootstrap.Modal(document.getElementById('modalScanner'));
+
+      const now = new Date();
+      document.getElementById('filterBulan').value = now.getMonth() + 1;
+
+      const selectTahun = document.getElementById('filterTahun');
+      const currentYear = now.getFullYear();
+      for (let y = currentYear - 2; y <= currentYear + 1; y++) {
+        selectTahun.innerHTML += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+      }
+    });
+
+    function showCustomAlert(message, type = 'success', title = 'Berhasil!') {
+      const notifIcon = document.getElementById('notifIcon');
+      document.getElementById('notifTitle').innerText = title;
+      document.getElementById('notifMessage').innerText = message;
+
+      if (type === 'success') {
+        notifIcon.className = 'fa-solid fa-circle-check fs-1 text-success';
+      } else if (type === 'error' || type === 'danger') {
+        notifIcon.className = 'fa-solid fa-circle-xmark fs-1 text-danger';
+      } else {
+        notifIcon.className = 'fa-solid fa-triangle-exclamation fs-1 text-warning';
+      }
+
+      modalNotifElement.show();
+    }
+
+    // Modal Pemindai Kamera yang Lebih Stabil
+    function openScannerModal() {
+      modalScannerElement.show();
+      
+      // Beri jeda agar elemen DOM modal benar-benar siap
+      setTimeout(() => {
         // Selalu bersihkan/stop instance lama jika masih ada
         if (html5QrCode) {
           html5QrCode.stop().catch(() => {}).finally(() => {
@@ -16,8 +364,328 @@ Index.html
       }, 300);
     }
 
-startCameraStream
-2 of 3
-startCameraStream();, 2 of 3 found for 'startCameraStream', at 362:11
-Menyimpan project... 
-Terapkan project ini
+    function startCameraStream() {
+      html5QrCode = new Html5Qrcode("reader");
+      
+      // Gunakan konfigurasi kamera fleksibel (Kamera Belakang Utama)
+      const cameraConfig = { facingMode: { exact: "environment" } };
+      const fallbackConfig = { facingMode: "environment" };
+
+      const scanSuccessCallback = (decodedText) => {
+        currentScannedQr = decodedText;
+        closeScannerModal();
+        fetchBookStatus(decodedText);
+      };
+
+      const qrBoxConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+      // Jalankan scanner dengan fallback jika exact environment ditolak HP
+      html5QrCode.start(cameraConfig, qrBoxConfig, scanSuccessCallback)
+        .catch(() => {
+          // Fallback ke pemanggilan kamera bawaan standar
+          return html5QrCode.start(fallbackConfig, qrBoxConfig, scanSuccessCallback);
+        })
+        .catch(err => {
+          closeScannerModal();
+          showCustomAlert("Gagal mengakses kamera. Pastikan kamera tidak sedang dipakai aplikasi lain dan izin kamera sudah aktif di browser.", 'danger', 'Kamera Gagal');
+        });
+    }
+
+    function closeScannerModal() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+          modalScannerElement.hide();
+        }).catch(() => {
+          html5QrCode = null;
+          modalScannerElement.hide();
+        });
+      } else {
+        modalScannerElement.hide();
+      }
+    }
+
+    // Ambil Status Buku dari Apps Script
+    function fetchBookStatus(qrCode) {
+      showCustomAlert("Memeriksa data buku...", "info", "Memuat Data");
+      fetch(`${WEB_APP_URL}?action=checkBookStatus&qrCode=${encodeURIComponent(qrCode)}`)
+        .then(res => res.json())
+        .then(data => {
+          modalNotifElement.hide();
+          handleBookStatus(data);
+        })
+        .catch(err => {
+          showCustomAlert("Gagal terhubung ke Apps Script!", "danger", "Koneksi Error");
+        });
+    }
+
+    function handleBookStatus(res) {
+      if (!res || !res.found) {
+        showCustomAlert("Buku dengan Kode QR ini tidak ditemukan dalam database!", "danger", "Data Tidak Ditemukan");
+        return;
+      }
+
+      const isPinjam = res.status === 'Tersedia';
+      const actionText = isPinjam ? 'PINJAM' : 'KEMBALI';
+      jumlahBukuPinjamAwal = isPinjam ? 1 : (parseInt(res.jumlahDipinjam, 10) || 1);
+
+      document.getElementById('qrCodeInput').value = currentScannedQr;
+      document.getElementById('actionInput').value = actionText;
+      document.getElementById('inputJumlahBuku').value = jumlahBukuPinjamAwal;
+
+      document.getElementById('bookTitle').innerText = res.judul;
+      document.getElementById('bookMapel').innerText = "Mata Pelajaran: " + res.mapel;
+      document.getElementById('bookCode').innerText = "Kode QR: " + currentScannedQr;
+
+      const badge = document.getElementById('transactionBadge');
+      if (isPinjam) {
+        badge.innerText = "PEMINJAMAN";
+        badge.className = "status-badge badge-pinjam";
+        document.getElementById('modalTitle').innerText = "Laporan Peminjaman Buku";
+      } else {
+        badge.innerText = "PENGEMBALIAN";
+        badge.className = "status-badge badge-kembali";
+        document.getElementById('modalTitle').innerText = "Laporan Pengembalian Buku";
+      }
+
+      cekJumlahBuku();
+      
+      // Auto-select kelas & siswa jika mode pengembalian
+      fetchDaftarKelas(() => {
+        if (!isPinjam && res.kelasSiswa && res.namaSiswa) {
+          const selectKelas = document.getElementById('selectKelas');
+          selectKelas.value = res.kelasSiswa;
+          loadSiswa(res.namaSiswa);
+        }
+      });
+
+      modalElement.show();
+    }
+
+    function cekJumlahBuku() {
+      const actionText = document.getElementById('actionInput').value;
+      const inputJumlah = parseInt(document.getElementById('inputJumlahBuku').value, 10) || 0;
+      const containerKeterangan = document.getElementById('containerKeterangan');
+      const inputKeterangan = document.getElementById('inputKeterangan');
+      const targetAwal = parseInt(jumlahBukuPinjamAwal, 10) || 1;
+
+      if (actionText === 'KEMBALI') {
+        if (inputJumlah !== targetAwal) {
+          containerKeterangan.style.display = 'block';
+          inputKeterangan.disabled = false;
+          inputKeterangan.required = true;
+        } else {
+          containerKeterangan.style.display = 'none';
+          inputKeterangan.disabled = true;
+          inputKeterangan.required = false; 
+          inputKeterangan.value = '';
+        }
+      } else {
+        containerKeterangan.style.display = 'none';
+        inputKeterangan.disabled = true;
+        inputKeterangan.required = false;
+        inputKeterangan.value = '';
+      }
+    }
+
+    function fetchDaftarKelas(callback = null) {
+      fetch(`${WEB_APP_URL}?action=getDaftarKelas`)
+        .then(res => res.json())
+        .then(kelasList => {
+          populateKelas(kelasList);
+          if (callback) callback();
+        });
+    }
+
+    function populateKelas(kelasList) {
+      const select = document.getElementById('selectKelas');
+      select.innerHTML = '<option value="">-- Pilih Kelas Siswa --</option>';
+      if(Array.isArray(kelasList)) {
+        kelasList.forEach(k => { select.innerHTML += `<option value="${k}">${k}</option>`; });
+      }
+    }
+
+    function loadSiswa(selectedSiswaName = null) {
+      const kelas = document.getElementById('selectKelas').value;
+      const selectSiswa = document.getElementById('selectSiswa');
+      
+      if (!kelas) {
+        selectSiswa.disabled = true;
+        selectSiswa.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        return;
+      }
+
+      fetch(`${WEB_APP_URL}?action=getSiswaByKelas&kelas=${encodeURIComponent(kelas)}`)
+        .then(res => res.json())
+        .then(siswaList => {
+          selectSiswa.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+          if(Array.isArray(siswaList)) {
+            siswaList.forEach(s => { selectSiswa.innerHTML += `<option value="${s}">${s}</option>`; });
+          }
+          selectSiswa.disabled = false;
+          if (selectedSiswaName) {
+            selectSiswa.value = selectedSiswaName;
+          }
+        });
+    }
+
+    // Submit Transaksi Peminjaman/Pengembalian
+    document.getElementById('formTransaksi').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const actionText = document.getElementById('actionInput').value;
+      const inputJumlah = parseInt(document.getElementById('inputJumlahBuku').value, 10) || 0;
+      const targetAwal = parseInt(jumlahBukuPinjamAwal, 10) || 1;
+      const ketAlasan = document.getElementById('inputKeterangan').value.trim();
+
+      if (actionText === 'KEMBALI' && inputJumlah !== targetAwal && ketAlasan === "") {
+        showCustomAlert("Harap tuliskan keterangan/alasan mengapa jumlah buku yang dikembalikan tidak sama!", "warning", "Alasan Wajib Diisi");
+        document.getElementById('inputKeterangan').focus();
+        return;
+      }
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Menyimpan...';
+
+      const payload = {
+        qrCode: document.getElementById('qrCodeInput').value,
+        action: actionText,
+        kelas: document.getElementById('selectKelas').value,
+        namaSiswa: document.getElementById('selectSiswa').value,
+        jumlahBuku: inputJumlah,
+        keterangan: (actionText === 'KEMBALI' && inputJumlah !== targetAwal) ? ketAlasan : '-'
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        modalElement.hide();
+        document.getElementById('formTransaksi').reset();
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Simpan Transaksi';
+        
+        const notifTitle = actionText === 'PINJAM' ? 'Peminjaman Berhasil!' : 'Pengembalian Berhasil!';
+        showCustomAlert(res.message, "success", notifTitle);
+      })
+      .catch(err => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Simpan Transaksi';
+        showCustomAlert("Gagal menyimpan transaksi ke database!", "danger", "Gagal Simpan");
+      });
+    });
+
+    // Fitur Laporan & Cetak PDF
+    function openModalLaporan() {
+      modalLaporanElement.show();
+    }
+
+    function prosesCetakLaporan() {
+      const bulan = document.getElementById('filterBulan').value;
+      const bulanTeks = document.getElementById('filterBulan').options[document.getElementById('filterBulan').selectedIndex].text;
+      const tahun = document.getElementById('filterTahun').value;
+
+      fetch(`${WEB_APP_URL}?action=getLaporanBulanan&bulan=${bulan}&tahun=${tahun}`)
+        .then(res => res.json())
+        .then(data => {
+          modalLaporanElement.hide();
+          generatePrintView(data, bulanTeks, tahun);
+        });
+    }
+
+    function generatePrintView(data, bulanTeks, tahun) {
+      if (!data || data.length === 0) {
+        showCustomAlert(`Tidak ada data transaksi pada periode ${bulanTeks} ${tahun}`, "warning", "Data Kosong");
+        return;
+      }
+
+      const printoutLogoUrl = "https://lh3.googleusercontent.com/d/1MxE-KfIKIE_0OKn3LclO-nQZ-8SyEgMY";
+      let tableRows = '';
+      let no = 1;
+      
+      data.forEach(item => {
+        const tanggalWaktu = item.tanggal || '-';
+        const statusTrans  = item.status || 'PINJAM';
+        const judulBuku    = item.judul || '-';
+        const namaSiswa    = item.nama || '-';
+        const kelasSiswa   = item.kelas || '-';
+        const jumlahBuku   = item.jumlah || 1;
+
+        const isPinjam = statusTrans.toString().toUpperCase().includes('PINJAM');
+        const colorStatus = isPinjam ? '#dc2626' : '#16a34a';
+
+        tableRows += `
+          <tr>
+            <td style="text-align:center;">${no++}</td>
+            <td style="text-align:center;">${tanggalWaktu}</td>
+            <td>${judulBuku}</td>
+            <td style="text-align:center;">${kelasSiswa}</td>
+            <td>${namaSiswa}</td>
+            <td style="text-align:center;">${jumlahBuku}</td>
+            <td style="text-align:center; font-weight:bold; color:${colorStatus};">${statusTrans}</td>
+          </tr>
+        `;
+      });
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Laporan Transaksi Perpustakaan - ${bulanTeks} ${tahun}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 25px; color: #1e293b; }
+            .header-container { display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 25px; }
+            .header-logo { width: 80px; height: auto; object-fit: contain; }
+            .header-text { text-align: center; }
+            .header-text h2 { margin: 0; font-size: 18pt; color: #0284c7; font-weight: bold; }
+            .header-text h4 { margin: 5px 0 0 0; font-size: 13pt; text-transform: uppercase; }
+            .header-text p { margin: 4px 0 0 0; font-size: 10pt; color: #64748b; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9.5pt; }
+            th, td { border: 1px solid #94a3b8; padding: 8px 10px; }
+            th { background-color: #f1f5f9; font-weight: bold; text-align: center; }
+            .footer { margin-top: 40px; float: right; text-align: center; font-size: 10pt; width: 220px; }
+            @media print { @page { size: A4 portrait; margin: 15mm; } }
+          </style>
+        </head>
+        <body>
+          <div class="header-container">
+            <img src="${printoutLogoUrl}" class="header-logo" alt="Logo Laporan" onerror="this.style.display='none'">
+            <div class="header-text">
+              <h2>PERPUSTAKAAN SMKN 1 PURWOASRI</h2>
+              <h4>LAPORAN PEMINJAMAN & PENGEMBALIAN BUKU</h4>
+              <p><b>Periode: ${bulanTeks} ${tahun}</b></p>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="18%">Tanggal & Waktu</th>
+                <th width="27%">Judul Buku</th>
+                <th width="12%">Kelas</th>
+                <th width="18%">Nama Siswa</th>
+                <th width="8%">Jumlah</th>
+                <th width="12%">Status</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+          <div class="footer">
+            <p>Purwoasri, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+            <p>Petugas Perpustakaan,</p><br><br><br>
+            <p><b>( ____________________ )</b></p>
+          </div>
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  </script>
+</body>
+</html>
